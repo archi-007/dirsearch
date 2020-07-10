@@ -129,7 +129,7 @@ class Controller(object):
         self.batch = False
         self.batchSession = None
         self.setupErrorLogs()
-        self.output.newLine("\nError Log: {0}".format(self.errorLogPath))
+        self.output.errorLogFile(self.errorLogPath)
 
         if self.arguments.autoSave and len(self.arguments.urlList) > 1:
             self.setupBatchReports()
@@ -327,12 +327,12 @@ class Controller(object):
 
                 fileName = ('{}_'.format(basePath) if basePath != '' else '')
                 fileName += time.strftime('%y-%m-%d_%H-%M-%S')
-                directoryPath = FileUtils.buildPath(self.savePath, 'reports', f'{requester.protocol}_{requester.host}_{requester.httpmethod}')
+                directoryPath = FileUtils.buildPath(self.savePath, 'reports', requester.host)
 
 
             outputFile = FileUtils.buildPath(directoryPath, fileName)
 
-            self.output.newLine("Output File: {0}\n".format(outputFile))
+            self.output.outputFile(outputFile)
 
             if FileUtils.exists(outputFile):
                 i = 2
@@ -386,7 +386,8 @@ class Controller(object):
             else:
                 self.output.error("Can't write reports to {}".format(directoryPath))
                 sys.exit(1)
-
+        
+        # TODO: format, refactor code 
         if self.arguments.simpleOutputFile is not None:
             self.reportManager.addOutput(SimpleReport(requester.host, requester.port, requester.protocol,
                                                       requester.basePath, self.arguments.simpleOutputFile, self.batch))
@@ -399,7 +400,8 @@ class Controller(object):
             self.reportManager.addOutput(JSONReport(requester.host, requester.port, requester.protocol,
                                                     requester.basePath, self.arguments.jsonOutputFile, self.batch))
 
-
+            
+    # TODO: Refactor, this function should be a decorator for all the filters
     def matchCallback(self, path):
         self.index += 1
 
